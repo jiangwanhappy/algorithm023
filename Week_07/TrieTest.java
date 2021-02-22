@@ -42,11 +42,18 @@ public class TrieTest {
 //      node = node[char]
 //      return True
 
+    @Test
+    public void test () {
+        String[] words = {"oath","pea","eat","rain"};
+        char[][] board = {{'o','a','a','n'},{'e','t','a','e'},{'i','h','k','r'},{'i','f','l','v'}};
+        System.out.println(findWords(board,words));
+    }
+
     /*
-    此相邻称为四联通：上下左右四联通，如果斜线也算相邻，则成为八联通
+    此相邻称为四联通：上下左右四联通，如果斜线也算相邻，则称为八联通
      */
     Set results = new HashSet<String>();
-    int[] dx = {-1,1,0,0};
+    int[] dx = {-1,1,0,0};//对应着上下左右
     int[] dy = {0,0,-1,1};
     public List<String> findWords(char[][] board, String[] words) {
         /*
@@ -59,7 +66,6 @@ public class TrieTest {
         方法二：字典树Trie
 
          */
-
         if (words.length == 0 || board.length == 0) return new ArrayList<>();
         Trie wordtrie = new Trie();
         for (String s : words) {
@@ -78,15 +84,20 @@ public class TrieTest {
     private void DFSboard(char[][] board, int i, int j, int m, int n, String curword, Trie curtrie) {
         curword += board[i][j];
         curtrie = curtrie.next[board[i][j] - 'a'];
-        if (curtrie.end) results.add(curword);
-        char tmp = board[i][j];board[i][j] = '@';//@ 是自定义的访问过的标识
+        if (curtrie == null) {
+            return;
+        }
+        if (curtrie != null && curtrie.end) {
+            results.add(curword);//完整的单词
+        }
+        char tmp = board[i][j];board[i][j] = '@';//@ 是以某个字符开始的字符串 联通过程中 自定义的访问过的标识
         for (int k = 0;k < 4;k++) {
             int x = i + dx[k],y = j + dy[k];
             if (x >= 0 && x < m && y >= 0 && y < n && board[x][y] != '@' && curtrie.next[board[x][y] - 'a'] != null) {
                 DFSboard(board,x,y,m,n,curword,curtrie);
             }
         }
-        board[i][j] = tmp;
+        board[i][j] = tmp;//该字符的上下左右遍历完成需要 恢复该字符  以便查找以下一个字符开头的字典树Trie
     }
 
 }
